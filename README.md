@@ -6,7 +6,7 @@ graphql-swift-codegen will generate swift code based on the schema provided.
 
 ## Install
 
-Clone the repository and use RUNME.sh` to build.
+Clone the repository and use RUNME.sh to build.
 
 This will put the binary in `./build/graphql-swift-codegen/bin/`.
 
