@@ -16,7 +16,7 @@ public func buildRequest(url:String) -> DataRequest{
     ]
     
     let actualUrl = url.components(separatedBy: "=")[1]
-    //"https://search-api-wwe-mock.bamgrid.com/svc/search/v2/graphql"
+    //""
     return Alamofire
         .request(actualUrl,
                  method:.post,

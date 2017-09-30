@@ -173,13 +173,17 @@ func convertFromGraphQLToSwift(_ types: [GraphQLTypeDescription]) -> [SwiftTypeB
                 return nil
             }
             
-            let swiftFields: [SwiftMemberBuilder] = fields.map { f in
+            let swiftFieldMembers: [SwiftMemberBuilder] = fields.map { f in
                 return SwiftFieldBuilder(f.name, getTypeReference(type: f.type!))
+            }
+            
+            let unboxFields: [UnboxerFieldBuilder] =  fields.map { f in
+                return UnboxerFieldBuilder(f.name, getTypeReference(type: f.type!),f,nil)
             }
             
             let interfaceReferences = graphQLType.interfaces?.map { SwiftTypeReference($0.name!) } ?? []
             
-            return SwiftTypeBuilder(name, graphQLType.kind == .object ? .Class : .Protocol, swiftFields, interfaceReferences)
+            return SwiftTypeBuilder(name, graphQLType.kind == .object ? .Class : .Protocol, swiftFieldMembers, interfaceReferences,unboxFields)
         case .inputObject?:
             guard let name = graphQLType.name else {
                 print("InputObject type must have a name")
@@ -195,7 +199,11 @@ func convertFromGraphQLToSwift(_ types: [GraphQLTypeDescription]) -> [SwiftTypeB
                 return SwiftFieldBuilder(f.name, getTypeReference(type: f.type!))
             }
             
-            return SwiftTypeBuilder(name, .Class, swiftFields)
+              let unboxFields: [SwiftMemberBuilder] =  fields.map { f in
+                return UnboxerFieldBuilder(f.name, getTypeReference(type: f.type!),nil,f)
+            }
+            
+            return SwiftTypeBuilder(name, .Class, swiftFields,fields:unboxFields)
         case .Enum?:
             guard let name = graphQLType.name else {
                 print("Enum type must have a name")
@@ -208,10 +216,14 @@ func convertFromGraphQLToSwift(_ types: [GraphQLTypeDescription]) -> [SwiftTypeB
             }
             
             let swiftFields: [SwiftMemberBuilder] = enumValues.map { v in
-                return SwiftEnumValueBuilder(v.name, v.name)
+                return SwiftEnumValueBuilder(v.name, v.name) //??
             }
             
-            return SwiftTypeBuilder(name, .Enum, swiftFields, [SwiftTypeReference("String")])
+//            let unboxFields: [SwiftMemberBuilder] =  enumValues.map { v in
+//                return UnboxerFieldBuilder(v.name, v.name)
+//            }
+            
+            return SwiftTypeBuilder(name, .Enum, swiftFields, [SwiftTypeReference("String")],[])
         default:
             print("Unable to handle \(graphQLType.kind)")
             return nil
